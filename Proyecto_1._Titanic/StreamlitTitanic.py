@@ -1,142 +1,46 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
-import numpy as np
 
+st.set_page_config(page_title="Panel de Datos del Titanic",layout="wide") # Configuración de la página
 
-st.set_page_config(page_title="Panel de Control de Salarios",layout="wide") #configuración de la página
+@st.cache_resource # Decorador para cachear los datos
+def cargar_datos(): # Función para cargar los datos
+    return pd.read_csv('df3.csv') 
 
-#@st.cache_resource #decorador para cachear los datos
-def cargar_datos(): #función para cargar los datos
-    return pd.read_csv('titanic.csv') 
+df3 = cargar_datos() # Cargar los datos en una variable
 
-datos = cargar_datos() #cargar los datos en una variable, empezamos a arreglarla
-
-#Limpieza de datos (Hasta línea 92)
-##############################################################################################################
-# Cargamos los datos
-df_Age_knn = datos
-# Creamos la columna lastname para guardar el apellido de los pasajeros
-df_Age_knn['LastName'] = df_Age_knn['Name'].apply(lambda x: x.split(',')[0])
-# Vamos a normalizar Fare para asegurarnos que no tenga un impacto desproporcionado en la distancia 
-scaler = StandardScaler()
-df_Age_knn['Fare'] = scaler.fit_transform(df_Age_knn[['Fare']])
-# estas son las columnas que se van a usar como predictores de Age
-columnas=['Survived', 'Pclass', 'SibSp', 'Parch', 'Fare', 'Embarked',"Age"]
-# Aplicamos OneHotEncoder para codificar nuestras variables categóricas 
-encoder = OneHotEncoder(drop='first', sparse_output=False)
-df_encoded = pd.DataFrame(encoder.fit_transform(df_Age_knn[columnas]))
-df_encoded.columns = encoder.get_feature_names_out(columnas)
-# Creamos dos dataframes basados en la presencia o ausencia de Age
-df_encoded['Age'] = df_Age_knn['Age']
-df_with_age = df_encoded.dropna(subset=['Age'])
-df_without_age = df_encoded[df_encoded['Age'].isna()].drop(columns='Age')
-# Dividimos el conjunto de datos en un conjunto de entrenamiento y un conjunto de prueba
-X_train, X_test, y_train, y_test = train_test_split(df_with_age.drop(columns='Age'), df_with_age['Age'], test_size=0.2, random_state=357)
-# Lista para almacenar los valores de MSE (Error Cuadrático Medio)
-mse = []
-
-# Rango de k para probar
-k_range = range(1, 7)
-
-for k in k_range:
-    knn = KNeighborsRegressor(n_neighbors=k)
-    scores = -cross_val_score(knn, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
-    mse.append(scores.mean())
-    print(f'scores = {scores}')
-    
-
-# Graficamos los valores 
-plt.plot(k_range, mse)
-plt.xlabel('k')
-plt.ylabel('MSE')
-plt.title('Regla del codo para determinar el valor óptimo de k')
-plt.show()
-
-# Determinar el mejor valor de k
-best_k = k_range[mse.index(min(mse))]
-print(f'Mejor número K: {best_k}')
-
-# Creamos el modelo KNN con el mejor valor de k
-knn = KNeighborsRegressor(n_neighbors=best_k)
-
-# Ajustamos el modelo a los datos sin valores nulos
-knn.fit(X_train, y_train)
-
-# Imputamos los valores faltantes en la columna 'Age'
-imputed_ages = knn.predict(df_without_age)
-df_Age_knn.loc[df_Age_knn['Age'].isna(), 'Age'] = imputed_ages
-
-df2 = df_Age_knn.copy()  # Renombramos el dataframe para resumir el nombre.
-df2 = pd.DataFrame(df2)  # Convertimos el dataframe en un objeto de tipo DataFrame.
-
-datos = cargar_datos() # Recuperamos los datos originales para no perder la información de la tarifa.
-df2["Fare"] = datos["Fare"] # Deshacemos la normalización retornando los valores originales de la tarifa.
-
-df2["Euro_Fare"] = df2["Fare"] * 95.42231463 * 1.1711   # Convertimos la tarifa de libras de 1912 a libras de abril del 2024,
-                                                        # y de libras de abril 2024 a euros de abril 2024
-
-df2["Embarked"].fillna(df2["Embarked"].mode()[0], inplace=True) # Sustituimos valores nulos de Embarked por la moda
-
-df2["Binary_Cabin"] = [0 if pd.isnull(i) else 1 for i in df2["Cabin"]] # Sustituimos valores nulos de Cabin por 0 y los conocidos por 1
-
-#Tras corregir todas las columnas, eliminamos las columnas que no vamos a utilizar
-df3 = df2.copy()
-df3.drop(columns=["PassengerId", "SibSp", "Parch", "Ticket", "Cabin", "Name", "LastName"], inplace=True)
-#Añadimos algunas variables más de interés que se crearon en el análisis exploratorio
-#Grupos de edad
-def age_group(age):
-    if age < 10:
-        return 'Kid'
-    elif 10 <= age < 18:
-        return 'Teen'
-    elif 18 <= age <= 45:
-        return 'Adult'
-    else:
-        return 'Third age'
-
-df3['AgeGroup'] = df3['Age'].apply(age_group)
-
-#Nombre honorífico
-df3["Honorific_Name"] = df2["Name"].apply(lambda x: x.split(". ")[0].split(" ")[-1])
-##############################################################################################################
-
-opcion = st.sidebar.radio( #crear un radio button en el sidebar
+opcion = st.sidebar.radio( # Crear un radio button en el sidebar (Estos son los nombres que tienen que aparecer Y COINCIDIR, en opciones[opcion])
     "Acceder a información específica:",
     ["Inicio", "Distribución por Sexo", "Distribución por Grupo de Edad", "Distribución por Clase", "Distribución por Nombre Honorífico", "Comparativa por Sexo y Edad", "Comparativa por Clase y Sexo", "Comparativa por Clase y Edad", "Ver Dataset"]
 )
 
-st.sidebar.header("Filtros") #crear un header en el sidebar
+st.sidebar.header("Filtros") # Crear un header en el sidebar
 
-def agregar_todos(lista): #función para agregar "Todos" a una lista
+def agregar_todos(lista): # Función para agregar "Todos" a una lista
     return ["Todos"] + list(lista)
 
-filtros = { #diccionario con los filtros
-    'Supervivencia': st.sidebar.multiselect("Seleccione si el pasajero sobrevivió o no:", options=agregar_todos(df3['Survived'].unique()), default=["Todos"]),
-    'Sexo': st.sidebar.multiselect("Seleccione el Sexo de los pasajeros:", options=agregar_todos(df3['Sex'].unique()), default=["Todos"]),
-    'Grupo de Edad': st.sidebar.multiselect("Seleccione el Tramo de Edad deseado:", options=agregar_todos(df3['AgeGroup'].unique()), default=["Todos"]),
-    'Puerto de Embarcación': st.sidebar.multiselect("Seleccione el Puerto de Embarcación de los pasajeros:", options=agregar_todos(df3['Embarked'].unique()), default=["Todos"]),
-    'Clase': st.sidebar.multiselect("Seleccione la Clase del pasajero:", options=agregar_todos(df3['Pclass'].unique()), default=["Todos"]),
-    'Nombre Honorífico': st.sidebar.multiselect("Selecciona el Nombre Honorífico del pasajero:", options=agregar_todos(df3['Honorific_Name'].unique()), default=["Todos"])
+filtros = { # Diccionario con los filtros (las Key tienen que coincidir con los nombres de las columnas del df)
+    'Survived': st.sidebar.multiselect("Seleccione si el pasajero sobrevivió o no:", options=agregar_todos(df3['Survived'].unique()), default=["Todos"]),
+    'Sex': st.sidebar.multiselect("Seleccione el Sexo de los pasajeros:", options=agregar_todos(df3['Sex'].unique()), default=["Todos"]),
+    'AgeGroup': st.sidebar.multiselect("Seleccione el Tramo de Edad deseado:", options=agregar_todos(df3['AgeGroup'].unique()), default=["Todos"]),
+    'Embarked': st.sidebar.multiselect("Seleccione el Puerto de Embarcación de los pasajeros:", options=agregar_todos(df3['Embarked'].unique()), default=["Todos"]),
+    'Pclass': st.sidebar.multiselect("Seleccione la Clase del pasajero:", options=agregar_todos(df3['Pclass'].unique()), default=["Todos"]),
+    'Honorific_Name': st.sidebar.multiselect("Selecciona el Nombre Honorífico del pasajero:", options=agregar_todos(df3['Honorific_Name'].unique()), default=["Todos"])
 }
 
-def aplicar_filtros(df, filtros): #función para aplicar los filtros
+def aplicar_filtros(df, filtros):
     for col, val in filtros.items():
         if "Todos" not in val:
             df = df[df[col].isin(val)]
     return df
 
-datos_filtrados = aplicar_filtros(df3, filtros) #aplicar los filtros a los datos
+datos_filtrados = aplicar_filtros(df3, filtros) # Aplicar los filtros a los datos
 
-st.title("Expediente Titanic: Análisis de Supervivencia") #título de la página
-st.write("Por: Juan Pedro Márquez Gandía, Data Analyst Jr. del equipo de investigación UpgradeHub") #autor
+st.title("Expediente Titanic: Análisis de Supervivencia") # Título de la página
+st.write("Por: Juan Pedro Márquez Gandía, Data Analyst Jr. del equipo de investigación UpgradeHub") # Autor
 
-def mostrar_inicio(): #función para mostrar la sección de inicio
+def mostrar_inicio(): # Función para mostrar la sección de inicio. Aquí puse la presentación y conclusiones del estudio
     st.header("En este Panel de Control, encontrarás información acerca de las víctimas del Titanic.")
 
     st.write("En este menú de inicio, tienes una descripción de las variables del dataset, así como un par de tablas de correlaciones para empezar a echarle una ojeada a los datos.")
@@ -200,32 +104,32 @@ def mostrar_inicio(): #función para mostrar la sección de inicio
     st.write("Los pasajeros en 3ª clase tuvieron menor ratio de supervivencia. En los niños, los de segunda clase tuvieron mayor ratio que los de primera, pero menor para el resto de grupos de edad. A mayor edad, menores ratios de supervivencia. Peor grupo: pasajeros más mayores de 3ª clase.")
     
     st.header("Conclusiones")
-    st.write("Es factible la hipótesis de que estas tasas de supervivencia tan elevadas en los grupos femeninos e infantiles, de clases con mayor poder adquisitivo e incluso miembros de la nobleza se debe a que gozaron de algún tipo de prioridad a la hora de ser evacuados del barco.")
-    st.write("Le recordamos que puede usar el menú desplegable de la izquierda para acceder a la información que desee, incluyendo el dataset completo. Gracias por su atención.")
-
+    st.write("La principal hipótesis que explicaría estas tasas de supervivencia tan elevadas en los grupos femeninos e infantiles, de clases con mayor poder adquisitivo e incluso miembros de la nobleza podría deberse a la norma marítima no escrita, de cortesía, de que deben evacuarase primero mujeres y niños. También puede tenerse en cuenta la rapidez con la que se hundió el barco (2h 40 minutos) o la cantidad de botes salvavidas con los que contaban (unos veinte), que podrían evacuar alrededor de un tercio de todos los pasajeros.")
+    st.write("Estas hipótesis deberían ser posteriormente evaluadas mediante técnicas estadísticas que nos ayuden a saber si fueron o no factores relevantes.")
+    st.write("Le recordamos que puede usar el menú desplegable de la izquierda para acceder a la información que desee, incluyendo el dataset completo o filtrado. Gracias por su atención.")
     st.header("¡Gracias por ver!")
 
-def mostrar_distribucion_sexos(): #función para mostrar la distribución por sexo
+def mostrar_distribucion_sexos(): # Función para mostrar la distribución por sexo
     st.header("Distribución por Sexo del Pasajero")
     fig = px.histogram(datos_filtrados, x='Sex', title="Pasajeros según su sexo")
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_grupos_edad(): #función para mostrar la distribución por grupo de edad
+def mostrar_grupos_edad(): # Función para mostrar la distribución por grupo de edad
     st.header("Distribución por Edad del Pasajero")
     fig = px.histogram(datos_filtrados, x='AgeGroup', title="Pasajeros según grupo de edad al que pertenecen")
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_clase(): #función para mostrar la distribución por clase de pasajero
+def mostrar_clase(): # Función para mostrar la distribución por clase de pasajero
     st.header("Distribución por Clase del Pasajero")
-    fig = px.histogram(datos_filtrados, x='AgeGroup', title="Pasajeros según su Clase")
+    fig = px.histogram(datos_filtrados, x='Pclass', title="Pasajeros según su Clase")
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_nombre_honor(): #función para mostrar la distribución por nombre honorífico
+def mostrar_nombre_honor(): # Función para mostrar la distribución por nombre honorífico
     st.header("Distribución por Nombre Honorífico del Pasajero")
     fig = px.histogram(datos_filtrados, x='Honorific_Name', title="Pasajeros según su Nombre de Honor")
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_comparativa_sexo_edad(): #función para mostrar la comparativa de supervivencia por sexo y edad
+def mostrar_comparativa_sexo_edad(): # Función para mostrar la comparativa de supervivencia por sexo y edad
     st.header("Comparativa de Supervivencia por sexo y edad")
     df_grouped = datos_filtrados.groupby(['AgeGroup', 'Sex'])['Survived'].mean().reset_index()
     age_mapping = {"Kid": 0, "Teen": 1, "Adult": 2, "Third_age": 3}
@@ -235,13 +139,13 @@ def mostrar_comparativa_sexo_edad(): #función para mostrar la comparativa de su
     df_grouped = df_grouped.drop(columns='AgeGroupOrder')
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_comparativa_clase_sexo(): #función para mostrar la comparativa de supervivencia por clase y sexo
+def mostrar_comparativa_clase_sexo(): # Función para mostrar la comparativa de supervivencia por clase y sexo
     st.header("Comparativa de Supervivencia por clase y sexo")
     df_grouped = datos_filtrados.groupby(['Pclass', 'Sex'])['Survived'].mean().reset_index()
     fig = px.line(df_grouped, x="Pclass", y="Survived", color="Sex", title="Ratio de supervivientes por clase y sexo", template="plotly_dark", width=650, height=480)
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_comparativa_clase_edad(): #función para mostrar la comparativa de supervivencia por clase y sexo
+def mostrar_comparativa_clase_edad(): # Función para mostrar la comparativa de supervivencia por clase y sexo
     st.header("Comparativa de Supervivencia por clase y edad")
     df_grouped = datos_filtrados.groupby(['AgeGroup', 'Pclass'])['Survived'].mean().reset_index()
     age_mapping = {"Kid": 0, "Teen": 1, "Adult": 2, "Third_age": 3}
@@ -251,12 +155,13 @@ def mostrar_comparativa_clase_edad(): #función para mostrar la comparativa de s
     df_grouped = df_grouped.drop(columns='AgeGroupOrder')
     st.plotly_chart(fig, use_container_width=True)
 
-def mostrar_dataset(): #función para mostrar el dataset
-    st.header("Dataset Completo")
-    st.write("Aquí puedes acceder al dataset con los datos filtrados, disponible para descargar en formato CSV.")
+def mostrar_dataset(): # Función para mostrar el dataset
+    st.header("Ver Dataset")
+    st.write("Aquí puedes acceder al dataset con los datos filtrados, disponible para descargar en formato CSV. Si deseas descargar el dataset completo, compruebe que no hay ningún filtro activado y que la opción 'Todos' está activada en todos los filtros.")
     st.dataframe(datos_filtrados)
+    # Podría añadirse un botón para descargar sí o sí el dataset completo, sin la necesidad de que el usuario quite los filtros.
 
-opciones = { #diccionario con las opciones
+opciones = { # Diccionario con las opciones (TIENE QUE COINCIDIR CON LO DE ARRIBA, EN "opcion")
     "Inicio": mostrar_inicio,
     "Distribución por Sexo": mostrar_distribucion_sexos,
     "Distribución por Grupo de Edad": mostrar_grupos_edad,
@@ -265,7 +170,7 @@ opciones = { #diccionario con las opciones
     "Comparativa por Sexo y Edad": mostrar_comparativa_sexo_edad,
     "Comparativa por Clase y Sexo": mostrar_comparativa_clase_sexo,
     "Comparativa por Clase y Edad": mostrar_comparativa_clase_edad,
-    "Ver Dataset Completo": mostrar_dataset,
+    "Ver Dataset": mostrar_dataset
 }
 
-opciones[opcion]() #mostrar la opción seleccionada
+opciones[opcion]() # Mostrar la opción seleccionada
