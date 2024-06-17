@@ -6,7 +6,7 @@ st.set_page_config(page_title="Panel de Datos del Titanic",layout="wide") # Conf
 
 @st.cache_resource # Decorador para cachear los datos
 def cargar_datos(): # Función para cargar los datos
-    return pd.read_csv('df3.csv') 
+    return pd.read_csv(r'Proyecto_1._Titanic/df3.csv') 
 
 df3 = cargar_datos() # Cargar los datos en una variable
 
