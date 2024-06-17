@@ -134,29 +134,76 @@ def aplicar_filtros(df, filtros): #función para aplicar los filtros
 datos_filtrados = aplicar_filtros(df3, filtros) #aplicar los filtros a los datos
 
 st.title("Expediente Titanic: Análisis de Supervivencia") #título de la página
+st.write("Por: Juan Pedro Márquez Gandía, Data Analyst Jr. del equipo de investigación UpgradeHub") #autor
 
 def mostrar_inicio(): #función para mostrar la sección de inicio
     st.header("En este Panel de Control, encontrarás información acerca de las víctimas del Titanic.")
+
     st.write("En este menú de inicio, tienes una descripción de las variables del dataset, así como un par de tablas de correlaciones para empezar a echarle una ojeada a los datos.")
     st.write("En el menú lateral podrás navegar a través de las secciones de interés, pudiendo filtrar para obtener información específica.")
+
     st.write('Nuestro dataset contiene las siguientes variables:')
-    st.image('Variables.PNG', use_column_width=True)
+    st.image('Variables.PNG', use_column_width=False)
+
     st.write("Sin embargo, habiendo revisado el df, eliminamos algunas variables que más que agrupar los datos, los segregaban, dificultando la extracción de información útil.")
     st.write("Por lo tanto, la lista completa de variables con las que trabajaremos es la siguiente:")
-    st.image("VariablesDF3.PNG", use_column_width=True)
+    st.image("VariablesDF3.PNG", use_column_width=False)
+
     st.write("Las variables que hemos añadido son las 4 últimas, de la 7 a la 10, por los siguientes motivos:")
     st.write("'Binary_Cabin', que nos permite saber si se conoce o no la cabina del pasajero. Esta variable se creó porque el 77% de los datos de Cabin son nulos.")
     st.write("'Euro_Fare', que nos permite saber cuánto pagaron los pasajeros en euros de 2024. Esta variable se creó porque la tarifa original estaba en libras de 1912.")
     st.write("'AgeGroup', que nos ayuda a agrupar a los pasajeros por tramos de edad.")
     st.write("Y, finalmente, 'Honorific_Name', donde extrajimos el nombre honorífico o título del nombre de la persona. Esta variable se creó porque podría ser una variable útil, pues otorga cierta información de manera indirecta, como el sexo de la persona (si es hombre o mujer), su edad (si es más joven o más adulto), su oficio (Dr. para los educados, Rev. para estudios religiosos, Major., Col. y Capt. para rangos militares...), su estado civil (casado o no) y si proviene de una familia noble (condes, nobles...).")
+
     st.write('A continuación, vemos las siguientes correlaciones:')
-    st.image('Correlaciones1.PNG', use_column_width=True)
-    st.write("Lo interesante de esta tabla es que nos muestra que la supervivencia está correlacionada negativamente con la clase del pasajero (es decir, cuanto mayor sea el valor numérico de la clase, menor supervivencia asociada) y con el hombre (menor ratio de supervivencia asociada) y positivamente con la tarifa que se pagó, con el hecho de que el pasajero fuese mujer y se conociese su cabina y, aunque en menor medida, si el pasajero era un niño o si su puerto de embarque era Cherburgo.")
+    st.image('Correlaciones1.PNG', use_column_width=False)
+    st.write("Lo interesante de esta tabla es que nos muestra que la supervivencia está correlacionada negativamente con la clase del pasajero (es decir, cuanto mayor sea el valor numérico de la clase, menor supervivencia asociada), con si el pasajero era hombre (menor ratio de supervivencia asociada) y, en menor medida, si el puerto del pasajero era Southampton. Por otro lado, está positivamente correlacionada con la tarifa que se pagó, con el hecho de que el pasajero fuese mujer y se conociese su cabina y, aunque en menor medida, si el pasajero era un niño o si su puerto de embarque era Cherburgo.")
     st.write("Esto nos arroja algunas sugerencias iniciales de que el poder adquisitivo (tarifa y clase), la edad (niños) y el sexo (mujeres, en concreto) fueron factores importantes a la hora de 'determinar' o influir en la supervivencia de dichos pasajeros.")
+    
     st.write("En la siguiente tabla de correlaciones, nos centramos en el nombre honorífico del pasajero, la cual ha sido tratada de forma separada pues debido a la gran cantidad de nombres diferentes, las dimensiones de la tabla pueden dificultar su legibilidad.")
-    st.image('Correlaciones2.PNG', use_column_width=True)
+    st.image('Correlaciones2.PNG', use_column_width=False)
     st.write("En este caso, vemos que el nombre honorífico del pasajero está correlacionado positivamente con la supervivencia si está asociado con una mujer (Miss. y Mrs.), por lo que parece que el sexo femenino, y en cierta medida parece que los niños también, tuvieron algún tipo de prioridad en las evacuaciones del Titanic.")
-    st.write("Le recordamos que puede usar el menú desplegable de la izquierda para acceder a la información que desee.")
+    
+    st.image("superv_sexo.png", use_column_width=False)
+    st.write("En este gráfico puede compararse el número total de supervivientes por sexo, habiendo un total de 577 hombres y 314 mujeres a bordo. Se puede ver que las mujeres tuvieron un mayor ratio de supervivencia (Nº supervivientes > Nº fallecidos).")
+    
+    st.image("superv_edad.png", use_column_width=False)
+    st.write("En este gráfico puede compararse el número total de supervivientes por grupo de edad, habiendo un total de 69 niños, 52 adolescentes, 662 adultos y 108 personas de 3ª edad. Se puede ver que los niños tuvieron una ratio de supervivencia positiva y que el mayor número de bajas fueron adultos.")
+    
+    st.image("superv_clase.png", use_column_width=False)
+    st.write("En este gráfico puede compararse el número total de supervivientes por clase, habiendo un total de 216 pasajeros de 1ª clase, 184 de 2ª clase y 491 de 3ª clase. Se puede ver que la 3ª clase tuvo un mayor número de bajas y una baja ratio de supervivencia. La ratio de supervivencia de los pasajeros de 1ª clase fue positiva y tuvieron la menor cantidad de bajas. La ratio de la de 2ª clase estuvo cerca del 50%.")
+    
+    st.image("superv_nombre.png", use_column_width=True)
+    st.write("En este gráfico puede compararse el número total de supervivientes por nombre honorífico. Se puede ver que los nombres honoríficos asociados a mujeres (Miss., Mrs., Mlle., Mme., Ms. y Lady.), niños (Master.) y la nobleza (Countess. y Lady.) tuvieron un mayor número de supervivientes y una ratio de supervivencia positiva, mientras que los asociados a hombres tuvieron mayor número de bajas humanas (4 de cada 5 fallecimientos) y una ratio de supervivencia negativa. Solamente los Mr. fallecidos suponen el 79,4% de los fallecidos totales, y si le añadimos las Miss. y Mrs. fallecidas ese porcentaje sube hasta el 94%.")
+
+    df_grouped = df3.groupby(['AgeGroup', 'Sex'])['Survived'].mean().reset_index()
+    age_mapping = {"Kid": 0, "Teen": 1, "Adult": 2, "Third_age": 3}
+    df_grouped['AgeGroupOrder'] = df_grouped['AgeGroup'].map(age_mapping)
+    df_grouped = df_grouped.sort_values('AgeGroupOrder')
+    fig = px.line(df_grouped, x="AgeGroup", y="Survived", color="Sex", title="Relación entre la edad y sexo", template="plotly_dark", width=650, height=480)
+    df_grouped = df_grouped.drop(columns='AgeGroupOrder')
+    st.plotly_chart(fig, use_container_width=False)
+    st.write("Las mujeres tuvieron una ratio de supervivencia superior con respecto a los hombres para todas las categorías de edad excepto en los niños menores de 10 años, en la que ambos tuvieron alrededor de un 60%.")
+        
+    df_grouped = df3.groupby(['Pclass', 'Sex'])['Survived'].mean().reset_index()
+    fig2 = px.line(df_grouped, x="Pclass", y="Survived", color="Sex", title="Ratio de supervivientes por clase y sexo", template="plotly_dark", width=650, height=480)
+    st.plotly_chart(fig2, use_container_width=False)
+    st.write("A mayor clase del pasajero, mayor tasa de supervivencia asociada, en ambos sexos, y siendo las tasas femeninas superiores.")
+
+    df_grouped = df3.groupby(['AgeGroup', 'Pclass'])['Survived'].mean().reset_index()
+    age_mapping = {"Kid": 0, "Teen": 1, "Adult": 2, "Third_age": 3}
+    df_grouped['AgeGroupOrder'] = df_grouped['AgeGroup'].map(age_mapping)
+    df_grouped = df_grouped.sort_values('AgeGroupOrder')
+    fig3 = px.line(df_grouped, x="AgeGroup", y="Survived", color="Pclass", title="Relación entre la edad y clase", template="plotly_dark", width=650, height=480)
+    df_grouped = df_grouped.drop(columns='AgeGroupOrder')
+    st.plotly_chart(fig3, use_container_width=False)
+    st.write("Los pasajeros en 3ª clase tuvieron menor ratio de supervivencia. En los niños, los de segunda clase tuvieron mayor ratio que los de primera, pero menor para el resto de grupos de edad. A mayor edad, menores ratios de supervivencia. Peor grupo: pasajeros más mayores de 3ª clase.")
+    
+    st.header("Conclusiones")
+    st.write("Es factible la hipótesis de que estas tasas de supervivencia tan elevadas en los grupos femeninos e infantiles, de clases con mayor poder adquisitivo e incluso miembros de la nobleza se debe a que gozaron de algún tipo de prioridad a la hora de ser evacuados del barco.")
+    st.write("Le recordamos que puede usar el menú desplegable de la izquierda para acceder a la información que desee, incluyendo el dataset completo. Gracias por su atención.")
+
+    st.header("¡Gracias por ver!")
 
 def mostrar_distribucion_sexos(): #función para mostrar la distribución por sexo
     st.header("Distribución por Sexo del Pasajero")
