@@ -6,7 +6,7 @@ st.set_page_config(page_title="Panel de Datos del Titanic",layout="wide") # Conf
 
 @st.cache_resource # Decorador para cachear los datos
 def cargar_datos(): # Función para cargar los datos
-    return pd.read_csv(r'Proyecto_1._Titanic/df3.csv') 
+    return pd.read_csv(r'https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/df3.csv') 
 
 df3 = cargar_datos() # Cargar los datos en una variable
 
@@ -47,11 +47,11 @@ def mostrar_inicio(): # Función para mostrar la sección de inicio. Aquí puse 
     st.write("En el menú lateral podrás navegar a través de las secciones de interés, pudiendo filtrar para obtener información específica.")
 
     st.write('Nuestro dataset contiene las siguientes variables:')
-    st.image('Variables.PNG', use_column_width=False)
+    st.image('https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/Variables.PNG', use_column_width=False)
 
     st.write("Sin embargo, habiendo revisado el df, eliminamos algunas variables que más que agrupar los datos, los segregaban, dificultando la extracción de información útil.")
     st.write("Por lo tanto, la lista completa de variables con las que trabajaremos es la siguiente:")
-    st.image("VariablesDF3.PNG", use_column_width=False)
+    st.image("https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/VariablesDF3.PNG", use_column_width=False)
 
     st.write("Las variables que hemos añadido son las 4 últimas, de la 7 a la 10, por los siguientes motivos:")
     st.write("'Binary_Cabin', que nos permite saber si se conoce o no la cabina del pasajero. Esta variable se creó porque el 77% de los datos de Cabin son nulos.")
@@ -60,24 +60,24 @@ def mostrar_inicio(): # Función para mostrar la sección de inicio. Aquí puse 
     st.write("Y, finalmente, 'Honorific_Name', donde extrajimos el nombre honorífico o título del nombre de la persona. Esta variable se creó porque podría ser una variable útil, pues otorga cierta información de manera indirecta, como el sexo de la persona (si es hombre o mujer), su edad (si es más joven o más adulto), su oficio (Dr. para los educados, Rev. para estudios religiosos, Major., Col. y Capt. para rangos militares...), su estado civil (casado o no) y si proviene de una familia noble (condes, nobles...).")
 
     st.write('A continuación, vemos las siguientes correlaciones:')
-    st.image('Correlaciones1.PNG', use_column_width=False)
+    st.image('https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/Correlaciones1.PNG', use_column_width=False)
     st.write("Lo interesante de esta tabla es que nos muestra que la supervivencia está correlacionada negativamente con la clase del pasajero (es decir, cuanto mayor sea el valor numérico de la clase, menor supervivencia asociada), con si el pasajero era hombre (menor ratio de supervivencia asociada) y, en menor medida, si el puerto del pasajero era Southampton. Por otro lado, está positivamente correlacionada con la tarifa que se pagó, con el hecho de que el pasajero fuese mujer y se conociese su cabina y, aunque en menor medida, si el pasajero era un niño o si su puerto de embarque era Cherburgo.")
     st.write("Esto nos arroja algunas sugerencias iniciales de que el poder adquisitivo (tarifa y clase), la edad (niños) y el sexo (mujeres, en concreto) fueron factores importantes a la hora de 'determinar' o influir en la supervivencia de dichos pasajeros.")
     
     st.write("En la siguiente tabla de correlaciones, nos centramos en el nombre honorífico del pasajero, la cual ha sido tratada de forma separada pues debido a la gran cantidad de nombres diferentes, las dimensiones de la tabla pueden dificultar su legibilidad.")
-    st.image('Correlaciones2.PNG', use_column_width=False)
+    st.image('https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/Correlaciones2.PNG', use_column_width=False)
     st.write("En este caso, vemos que el nombre honorífico del pasajero está correlacionado positivamente con la supervivencia si está asociado con una mujer (Miss. y Mrs.), por lo que parece que el sexo femenino, y en cierta medida parece que los niños también, tuvieron algún tipo de prioridad en las evacuaciones del Titanic.")
     
-    st.image("superv_sexo.png", use_column_width=False)
+    st.image("https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/superv_sexo.png", use_column_width=False)
     st.write("En este gráfico puede compararse el número total de supervivientes por sexo, habiendo un total de 577 hombres y 314 mujeres a bordo. Se puede ver que las mujeres tuvieron un mayor ratio de supervivencia (Nº supervivientes > Nº fallecidos).")
     
-    st.image("superv_edad.png", use_column_width=False)
+    st.image("https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/superv_edad.png", use_column_width=False)
     st.write("En este gráfico puede compararse el número total de supervivientes por grupo de edad, habiendo un total de 69 niños, 52 adolescentes, 662 adultos y 108 personas de 3ª edad. Se puede ver que los niños tuvieron una ratio de supervivencia positiva y que el mayor número de bajas fueron adultos.")
     
-    st.image("superv_clase.png", use_column_width=False)
+    st.image("https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/superv_clase.png", use_column_width=False)
     st.write("En este gráfico puede compararse el número total de supervivientes por clase, habiendo un total de 216 pasajeros de 1ª clase, 184 de 2ª clase y 491 de 3ª clase. Se puede ver que la 3ª clase tuvo un mayor número de bajas y una baja ratio de supervivencia. La ratio de supervivencia de los pasajeros de 1ª clase fue positiva y tuvieron la menor cantidad de bajas. La ratio de la de 2ª clase estuvo cerca del 50%.")
     
-    st.image("superv_nombre.png", use_column_width=True)
+    st.image("https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/superv_nombre.png", use_column_width=True)
     st.write("En este gráfico puede compararse el número total de supervivientes por nombre honorífico. Se puede ver que los nombres honoríficos asociados a mujeres (Miss., Mrs., Mlle., Mme., Ms. y Lady.), niños (Master.) y la nobleza (Countess. y Lady.) tuvieron un mayor número de supervivientes y una ratio de supervivencia positiva, mientras que los asociados a hombres tuvieron mayor número de bajas humanas (4 de cada 5 fallecimientos) y una ratio de supervivencia negativa. Solamente los Mr. fallecidos suponen el 79,4% de los fallecidos totales, y si le añadimos las Miss. y Mrs. fallecidas ese porcentaje sube hasta el 94%.")
 
     df_grouped = df3.groupby(['AgeGroup', 'Sex'])['Survived'].mean().reset_index()
