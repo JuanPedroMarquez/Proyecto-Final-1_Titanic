@@ -65,7 +65,7 @@ def mostrar_inicio(): # Función para mostrar la sección de inicio. Aquí puse 
     st.write("Esto nos arroja algunas sugerencias iniciales de que el poder adquisitivo (tarifa y clase), la edad (niños) y el sexo (mujeres, en concreto) fueron factores importantes a la hora de 'determinar' o influir en la supervivencia de dichos pasajeros.")
     
     st.write("En la siguiente tabla de correlaciones, nos centramos en el nombre honorífico del pasajero, la cual ha sido tratada de forma separada pues debido a la gran cantidad de nombres diferentes, las dimensiones de la tabla pueden dificultar su legibilidad.")
-    st.image('https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/Correlaciones2.PNG', use_column_width=False)
+    st.image('Proyecto_1._Titanic/correlaciones2.png', use_column_width=False)
     st.write("En este caso, vemos que el nombre honorífico del pasajero está correlacionado positivamente con la supervivencia si está asociado con una mujer (Miss. y Mrs.), por lo que parece que el sexo femenino, y en cierta medida parece que los niños también, tuvieron algún tipo de prioridad en las evacuaciones del Titanic.")
     
     st.image("https://raw.githubusercontent.com/JuanPedroMarquez/Proyecto-Final-1_Titanic/main/Proyecto_1._Titanic/superv_sexo.png", use_column_width=False)
